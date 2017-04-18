@@ -6,10 +6,8 @@
  *
  * @constructor
  */
-function HackBrowserWindow() {
+class HackBrowserWindow {
 	const remote = require('electron').remote;
-
-	var _this = this;
 
 	/* ====================================
 	 private member variables
@@ -31,30 +29,30 @@ function HackBrowserWindow() {
 	/* ====================================
 	 private methods
 	 ====================================== */
-	var init = function() {
+	constructor() {
 		// note that handler for IPC communication be initialized before other view components
-		ipcHandler = new IPCRendererProcessHandler(_this);
+		ipcHandler = new IPCRendererProcessHandler(this);
 
 		// create a new NavigationControls object associated with current browser window
-		navigationControls = new NavigationControls(_this);
-		browserTabBar = new BrowserTabBar(_this);
-		addressBar = new AddressBar(_this);
-		autoCompleteBox = new AutoCompleteBox(_this);
-		userMenu = new UserMenu(_this); 
-		navigationHistoryHandler = new NavigationHistoryHandler(_this);
-		contextMenuHandler = new ContextMenuHandler(_this);
+		navigationControls = new NavigationControls(this);
+		browserTabBar = new BrowserTabBar(this);
+		addressBar = new AddressBar(this);
+		autoCompleteBox = new AutoCompleteBox(this);
+		userMenu = new UserMenu(this); 
+		navigationHistoryHandler = new NavigationHistoryHandler(this);
+		contextMenuHandler = new ContextMenuHandler(this);
 		createdTabViewCount = 0;
 		openTabViewCount = 0;
 		tabList = {};
 
 		var initialURL = remote.getCurrentWindow().initialURL ? remote.getCurrentWindow().initialURL : "http://www.google.com";
 
-		_this.addNewTab(initialURL, true);
+		this.addNewTab(initialURL, true);
 
 		attachEventHandlers();
 	};
 
-	var attachEventHandlers = function() {
+	function attachEventHandlers() {
 		// shortcuts
 		key('⌘+f, ctrl+f', function() {
 			activeTabView.getSearchBox().open();
@@ -81,7 +79,7 @@ function HackBrowserWindow() {
 	 *
 	 * @param url {string} new url
 	 */
-	_this.navigateTo = function(url) {
+	function navigateTo(url) {
 		activeTabView.navigateTo(url);
 	};
 
@@ -90,7 +88,7 @@ function HackBrowserWindow() {
 	 *
 	 * @param title {string} new title of the browser window
 	 */
-	_this.updateWindowTitle = function(title) {
+	function updateWindowTitle(title) {
 		document.title = title;
 	};
 
@@ -102,8 +100,8 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {string} ID of new tab
 	 */
-	_this.addNewTab = function(url, activate) {
-		var newTabView = new TabView(_this, browserTabBar, url);
+	function addNewTab(url, activate) {
+		var newTabView = new TabView(this, browserTabBar, url);
 		var newTabViewId = newTabView.getId();
 
 		// the default option for activating tab
@@ -115,7 +113,7 @@ function HackBrowserWindow() {
 
 		// activate tab
 		if (activate === true) {
-			_this.activateTabById(newTabViewId);
+			this.activateTabById(newTabViewId);
 
 			if (!addressBar.isAddressBarFocused()) {
 				addressBar.focusOnAddressBar();
@@ -133,7 +131,7 @@ function HackBrowserWindow() {
 	 *
 	 * @param {int} tabViewId
 	 */
-	_this.activateTabById = function(tabViewId) {
+	function activateTabById(tabViewId) {
 		console.log("activateTabById(" + tabViewId + ")");
 
 		if (activeTabView && (activeTabView.getId() === tabViewId)) {
@@ -151,14 +149,14 @@ function HackBrowserWindow() {
 			// activate new tab view
 			activeTabView.activate();
 
-			_this.updateWindowControls();
+			this.updateWindowControls();
 		}
 	};
 
 	/**
 	 * updates back/forward buttons' enable/disable status
 	 */
-	_this.updateWindowControls = function() {
+	function updateWindowControls() {
 		// Check if active webview is still loading
 		// if webViewEl.canGoBack() or webViewEl.canGoForward() is called in navigationControls.updateBtnStatus()
 		// before <webview> element is loaded, an exception will be thrown
@@ -177,7 +175,7 @@ function HackBrowserWindow() {
 			navigationControls.disableForwardBtn();
 		}
 
-		_this.updateWindowTitle(activeTabView.getWebViewTitle());
+		this.updateWindowTitle(activeTabView.getWebViewTitle());
 		addressBar.updateURL(activeTabView.getURL());
 	};
 
@@ -186,7 +184,7 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {BrowserTabBar} BrowserTabBar view component
 	 */
-	_this.getBrowserTabBar = function() {
+	function getBrowserTabBar() {
 		return browserTabBar;
 	};
 
@@ -195,7 +193,7 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {NavigationControls} NavigationControls view component
 	 */
-	_this.getNavigationControls = function() {
+	function getNavigationControls() {
 		return navigationControls;
 	};
 
@@ -204,7 +202,7 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {TabView} currently active TabView object
 	 */
-	_this.getActiveTabView = function() {
+	function getActiveTabView() {
 		return activeTabView;
 	};
 
@@ -212,7 +210,7 @@ function HackBrowserWindow() {
 	 * increment total number of created tabs including closed ones
 	 * this method should be exposed publicly in case a new tab is created programmatically
 	 */
-	_this.incrementCreatedTabViewCount = function() {
+	function incrementCreatedTabViewCount() {
 		createdTabViewCount++;
 	};
 
@@ -221,7 +219,7 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {int} created tab count
 	 */
-	_this.getCreatedTabViewCount = function() {
+	function getCreatedTabViewCount() {
 		return createdTabViewCount;
 	};
 
@@ -230,7 +228,7 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {boolean} whether navigating backwards was successful
 	 */
-	_this.goBack = function() {
+	function goBack() {
 		var didGoBack = false;
 
 		if ((activeTabView.isDOMReady() === true) && (activeTabView.getWebViewEl().canGoBack() === true)) {
@@ -246,7 +244,7 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {boolean} whether navigating forward was successful
 	 */
-	_this.goForward = function() {
+	function goForward() {
 		var didGoForward = false;
 
 		if ((activeTabView.isDOMReady() === true) && (activeTabView.getWebViewEl().canGoForward() === true)) {
@@ -260,14 +258,14 @@ function HackBrowserWindow() {
 	/**
 	 * reload (refresh) page on active TabView
 	 */
-	_this.reload = function() {
+	function reload() {
 		activeTabView.getWebViewEl().reload();
 	};
 
 	/**
 	 * stop loading a page on active TabView
 	 */
-	_this.stopLoading = function() {
+	function stopLoading() {
 		activeTabView.getWebViewEl().stop();
 	};
 
@@ -279,7 +277,7 @@ function HackBrowserWindow() {
 	 *
 	 * @param tabViewId
 	 */
-	_this.handleTabCloseById = function(tabViewId) {
+	function handleTabCloseById(tabViewId) {
 		var tabViewToClose = tabList[tabViewId];
 
 		// remove <webview> element
@@ -302,14 +300,14 @@ function HackBrowserWindow() {
 	 *
 	 * @returns {ContextMenuHandler} handler for context menu actions
 	 */
-	_this.getContextMenuHandler = function() {
+	function getContextMenuHandler() {
 		return contextMenuHandler;
 	};
 
 	/**
 	 * getter for IPC Renderer Process handler
 	 */
-	_this.getIPCHandler = function() {
+	function getIPCHandler() {
 		return ipcHandler;
 	};
 
@@ -317,21 +315,21 @@ function HackBrowserWindow() {
 	/**
 	 * getter for address bar handler
 	 */
-	_this.getAddressBar = function() {
+	function getAddressBar() {
 		return addressBar;
 	};
 
 	/**
 	 * getter for navigation history handler
 	 */
-	_this.getNavigationHistoryHandler = function() {
+	function getNavigationHistoryHandler() {
 		return navigationHistoryHandler;
 	};
 
 	/**
 	 * getter for auto complete box
 	 */
-	_this.getAutoCompleteBox = function() {
+	function getAutoCompleteBox() {
 		return autoCompleteBox; 
 	};
 	
